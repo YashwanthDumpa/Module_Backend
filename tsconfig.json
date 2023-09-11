@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "module": "CommonJS",
+      "outDir": "./dist",
+      "rootDir": "./source",
+      "strict": true,
+      "esModuleInterop": true
+    },
+    "include": ["source/**/*.ts", "source/migrations/20230909104953-migration-name.js",],
+    "exclude": ["node_modules"]
+  }
+  
