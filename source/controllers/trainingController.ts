@@ -57,8 +57,8 @@ class TrainingController {
             if(decoded){
                 console.log("decodded", decoded.userExist);
                 if(decoded.userExist){
-                    const getData = await trainingModel.findAll()
-                    return res.status(200).json({ message: "successfully", trainingData: getData, userName : decoded.userExist.FirstName })
+                    const getData = await trainingModel.findAll({where:{is_active:true}})
+                    return res.status(200).json({ message: "successfully", trainingData: getData, userName : decoded.userExist.FirstName})
                 }
             }
         })
@@ -126,12 +126,64 @@ class TrainingController {
     }else{
         res.status(200).json({message:"Token Not Found"})
     }
-  
   }catch(error){
-   
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
+
+
+
+
+
+// delete training
+
+public async trainingDelete(req:Request, res:Response){
+
+    const token = req.headers.authorization
+    const trainingName = req.params.training
+    if(token){
+        await jwt.verify(token,"naren",async (err: any,decoded: any)=>{
+            if(err){
+                 if (err?.name === 'TokenExpiredError') {
+                    res.status(200).json({ message: "TokenExpiredError" });
+                    }
+                console.log(err);
+            }
+            if(decoded){
+                console.log(decoded.userExist);
+                const trainingExists = await trainingModel.findOne({where:{trainingTitle:trainingName}})
+                if(trainingExists){
+                    await trainingModel.update({is_active: false},{where:{trainingTitle:trainingName}})
+                    res.status(200).json({message:"Deleted Successfully"})
+                }
+            }
+        })
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

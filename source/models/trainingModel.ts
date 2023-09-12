@@ -36,8 +36,11 @@ trainingModel.init(
     },
     limit: {
       type: DataTypes.INTEGER,
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue:true
     }
-    
   },
   {
     tableName: 'TrainingDetails',
