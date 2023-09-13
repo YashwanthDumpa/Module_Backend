@@ -1,10 +1,13 @@
-"use strict";
+export {}
+const dotenv = require("dotenv")
+dotenv.config()
+
 module.exports = {
-    HOST: "localhost",
-    USER: "postgres",
-    PASSWORD: "Narendra@1301",
-    DB: "l&d",
-    dialect: "postgres",
+    HOST: process.env.HOST,
+    USER: process.env.USER,
+    PASSWORD: process.env.PASSWORD,
+    DB: process.env.DB,
+    dialect: 'postgres',
     pool: {
         max: 5,
         min: 0,

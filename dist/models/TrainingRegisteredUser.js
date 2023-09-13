@@ -23,7 +23,11 @@ TrainingRegisteredUser.init({
         type: sequelize_1.DataTypes.STRING
     },
     RegisteredDateTime: {
-        type: sequelize_1.DataTypes.STRING,
+        type: sequelize_1.DataTypes.DATE,
+    },
+    is_disabled: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }, {
     tableName: 'TrainingRegisteredUser',

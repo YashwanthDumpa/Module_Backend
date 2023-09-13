@@ -8,7 +8,8 @@ class trainingModel extends sequelize_1.Model {
 exports.trainingModel = trainingModel;
 trainingModel.init({
     trainingTitle: {
-        type: sequelize_1.DataTypes.STRING
+        type: sequelize_1.DataTypes.STRING,
+        primaryKey: true
     },
     skillTitle: {
         type: sequelize_1.DataTypes.STRING
@@ -27,6 +28,10 @@ trainingModel.init({
     },
     limit: {
         type: sequelize_1.DataTypes.INTEGER,
+    },
+    is_active: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }, {
     tableName: 'TrainingDetails',

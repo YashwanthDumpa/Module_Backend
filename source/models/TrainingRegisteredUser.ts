@@ -31,6 +31,10 @@ TrainingRegisteredUser.init(
     },
     RegisteredDateTime: {
       type: DataTypes.DATE,
+    },
+    is_disabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue:false
     }
     
   },
