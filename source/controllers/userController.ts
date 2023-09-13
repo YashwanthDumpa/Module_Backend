@@ -4,7 +4,8 @@ import { User } from '../models/User';
 const {Op} = require('sequelize')
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-
+const nodemailer = require('nodemailer')
+const url = require('url')
 class UserController {
 
 
@@ -26,7 +27,32 @@ class UserController {
   }
 
 
-
+private static async emailVerificationLink(token: any, hashUser: any){
+  const transporter = await nodemailer.createTransport({
+    host: 'smtp.office365.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'yashwanthdumpa@jmangroup.com',
+      pass: 'Jman@600113',
+    },
+  })
+  const mailOptions = {
+    from: 'yashwanthdumpa@jmangroup.com',
+    to: hashUser.Employee_Email,
+    subject: 'Email Verification',
+    text: `Please click the following link to verify your email: http://localhost:8080/verify?token=${token}`,
+  };
+  await transporter.sendMail(mailOptions, (err: any,info: any)=>{
+    if (err){
+      console.log(err);
+    }
+      console.log("Email Sent", info.response);
+      if(info.response){
+        console.log(info.response);
+      }
+  })
+}
 
   public async registerUser(req: Request, res: Response) {
     const {EmpId,fname,lname,number,email,password} = req.body
@@ -41,14 +67,11 @@ class UserController {
           Password: password
         }
             console.log(userData);
-            
             // const userAlreadyExist = await User.findOne({where: {[Op.or]:[{EMP_ID: userData.EMP_ID} ,{Employee_Email:userData.Employee_Email}]}});
             const userAlreadyExist = await UserController.userExists(userData)
             // const emailExist = await User.findOne(userData.Employee_Email)
             // console.log("email : ",emailExist);
             // console.log("userExist : ",userAlreadyExist?.dataValues);
-            
-
             if(userAlreadyExist){
               res.status(200).json({ message: "User Already Registered" })
             }else{
@@ -63,11 +86,18 @@ class UserController {
                     Employee_Email: email,
                     Password: hash
                   }
-                  await User.create(hashUser).then(()=>{
-                    res.status(201).json({ message: "User Created" })
-                  }).catch((error:any)=>{
-                    console.log(error);
+                  console.log("hashUser:1 ", hashUser);
+                  
+                  const token = await UserController.createJwtToken(hashUser)
+                  await UserController.emailVerificationLink(token, hashUser).then(async ()=>{
+                    await User.create(hashUser).then(()=>{
+                      res.status(200).json({message:"email sent"})
+                    }).catch((error:any)=>{
+                      console.log(error);
+                    })
                   })
+                  
+                  
                 }
                 
               })
@@ -80,7 +110,41 @@ class UserController {
     }
   }
 
+  private static async verifyToken(token:string){
+    await jwt.verify(token,"naren",async (err: any,decoded: any)=>{
+      if(err){
+          if (err?.name === 'TokenExpiredError') {
+              // res.status(200).json({ message: "TokenExpiredError" });
+              return false
+              }
+          console.log(err);
+      }
+      if(decoded){
+          console.log("decodded", decoded.userExist);
+          if(decoded.userExist){
+              const userVerification = await User.findOne({where:{[Op.and]:[{EMP_ID:decoded.userExist.EMP_ID},{Employee_Email:decoded.userExist.Employee_Email}]}})
+              console.log("query : ",userVerification?.dataValues);
+              if(userVerification){
+                await User.update({is_activated:true},{where:{[Op.and]:[{EMP_ID:decoded.userExist.EMP_ID},{Employee_Email:decoded.userExist.Employee_Email}]}})
+              }
+              // return res.status(200).json({ message: "successfully", trainingData: getData, userName : decoded.userExist.FirstName})
+          }
+      }
+  })
 
+  }
+
+
+
+  public async verify(req: Request, res: Response){
+    const parsedUrl = await url.parse(req.url,true)
+    console.log(parsedUrl);
+    console.log("parser token : ",parsedUrl.query.token)
+    await UserController.verifyToken(parsedUrl.query.token).then(()=>{
+      res.send("<h1>Verification success</h1>")
+    })
+    
+  }
 
   
   private static async createJwtToken(userExist:any){
@@ -102,6 +166,7 @@ class UserController {
       const userExist = await User.findOne({where: {Employee_Email: loginData.Employee_Email}})
       console.log(userExist?.dataValues);
       if(userExist){
+        if(userExist.dataValues.is_activated){
           bcrypt.compare(loginData.Password,userExist.dataValues.Password,async (err: any, result: any)=>{
             if(err){res.status(500).json({ message: "Server Error" })}
             if(result){
@@ -116,6 +181,9 @@ class UserController {
               res.status(200).json({ message: "password not matching" })
             }
           })
+        }else{
+          res.status(200).json({ message: "Activation Required" })
+        }
       }else{
         res.status(200).json({ message: "User Not Found" })
       }
@@ -123,6 +191,17 @@ class UserController {
       res.status(500).json({ error: 'An error occurred' });
     }
   }
+
+
+
+
+
+
+
+
+
+
+
 }
 export const userController = new UserController();
 
