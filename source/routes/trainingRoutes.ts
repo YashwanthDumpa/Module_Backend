@@ -8,6 +8,7 @@ trainingrRoutes.post('/admin', trainingController.createTraining)
 trainingrRoutes.get('/get-training-data', trainingController.getTrainingData)
 trainingrRoutes.get('/training-request/:training', trainingController.trainingRequest)
 trainingrRoutes.get('/deleteTraining/:training',trainingController.trainingDelete)
+trainingrRoutes.get('/recycle-bin',trainingController.recycleBin)
 
 
 

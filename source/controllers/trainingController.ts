@@ -162,9 +162,51 @@ public async trainingDelete(req:Request, res:Response){
 }
 
 
+private static async verifyToken(token:string){
+    try {
+        const result = await jwt.verify(token,'naren')
+       
+        if(result.error === "TokenExpiredError"){
+            return "TokenExpiredError"
+        }
+        if(result.userExist){
+            return result.userExist
+        }else{
+            return false
+        }
+        
+    } catch (error) {
+        console.log(error);
+        
+    }
+    
 
+}
 
+// Recycle bin
 
+public async recycleBin(req:Request,res:Response){
+    const token = req.headers.authorization
+    if(token){
+        const verifiedUser:any = await TrainingController.verifyToken(token)
+        if(verifiedUser){
+            const getData = await trainingModel.findAll({where:{is_active:false}})
+            if(getData){
+                res.status(200).json({ message: "successfully", trainingData: getData})
+          
+            }else{
+                res.status(200).json({message:"No Training Found"})
+            }
+        }else if(verifiedUser=== "TokenExpiredError"){
+            res.status(200).json({message:"TokenExpiredError"})
+        }
+        else{
+            res.status(200).json({message:"Verification Failed"})
+        }
+    }else{
+        res.status(200).json({message:"Token Not Found"})
+    }
+}
 
 
 
