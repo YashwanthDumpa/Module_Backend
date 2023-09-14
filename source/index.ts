@@ -7,7 +7,19 @@ const trainingrRoutes = require("./routes/trainingRoutes");
 const dotenv = require("dotenv");
 const http = require('http')
 const app = express();
+const PORT = process.env.PORT; // set port, listen for requests
 const httpserver = http.createServer(app)
+
+//Handling Uncaught Exception
+
+process.on("uncaughtException", err =>{
+  console.log(`Error : ${err.message}`);
+  console.log("sutting down the server due to Uncaught Exception");
+  process.exit(1);
+})
+
+
+
 const result = dotenv.config();
 if (result.error) {
   console.error("Error loading .env file:", result.error);
@@ -21,14 +33,52 @@ app.use(bodyParser.json()); // parse requests of content-type - application/json
 app.use(bodyParser.urlencoded({ extended: true })); // parse requests of content-type - application/x-www-form-urlencoded
 app.use(routes);
 app.use(trainingrRoutes);
-const PORT = process.env.PORT; // set port, listen for requests
 
 // database.sync({ force: true }).then(() => {
 //   console.log("Drop and re-sync db.");
 // });
-database.sync().then(() => {
-  console.log("connected to db");
-  httpserver.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
+
+// checking connection to the database
+
+database.authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch((error:any) => {
+    console.error('Unable to connect to the database:', error);
+  })
+  
+
+
+  // synchronizing database
+
+
+  database.sync().then(() => {
+    console.log('Database synchronized successfully.');
+  })
+  .catch((error:any) => {
+    console.error('Error synchronizing database:', error);
   });
+
+
+
+
+
+httpserver.listen(PORT, () => {
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });
+
+  // Unhandled Promise Rejection
+
+// process.on("unhandledRejection", err =>{
+//   console.log(err);
+  
+//   console.log("sutting down the server due to unhandled Promise Rejection");
+
+//   httpserver.close(()=>{
+//       process.exit(1);
+//   })
+// })
+
+
+
