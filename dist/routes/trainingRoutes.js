@@ -9,4 +9,5 @@ trainingrRoutes.get('/training-request/:training', trainingController.trainingRe
 trainingrRoutes.get('/deleteTraining/:training', trainingController.trainingDelete);
 trainingrRoutes.get('/dashboard', trainingController.dashboard);
 trainingrRoutes.get('/recycle-bin', trainingController.recycleBin);
+trainingrRoutes.get('/restore/:training', trainingController.restore);
 module.exports = trainingrRoutes;

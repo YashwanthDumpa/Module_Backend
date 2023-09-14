@@ -10,7 +10,7 @@ class TrainingController {
 
   private static async trainingExists(data: any) {
     try {
-      const training = await trainingModel.findOne({
+      const training:trainingModel|null = await trainingModel.findOne({
         where: { trainingTitle: data.trainingTitle },
       });
       if (training) {
@@ -33,6 +33,8 @@ class TrainingController {
       if (trainingExists) {
         res.status(201).json({ message: "Training Already Exists" });
       } else {
+        console.log("training : ",trainingExists);
+        
         await trainingModel.create(trainingData).then(() => {
           res.status(201).json({ message: "Training Created Successfully" });
         });
@@ -203,7 +205,7 @@ class TrainingController {
           if (getData) {
             res
               .status(200)
-              .json({ message: "successfully", trainingData: getData });
+              .json({ message: "successfully", trainingData: getData,userName: verifiedUser.FirstName, });
           } else {
             res.status(200).json({ message: "No Training Found" });
           }
@@ -234,13 +236,15 @@ class TrainingController {
               const trainingName = await trainingModel.findOne({
                 where: { trainingTitle: data.trainingTitle },
               });
-              return trainingName?.dataValues || null;
+              const obj = trainingName?.dataValues
+              obj['RegisteredDateTime']= data.RegisteredDateTime
+              return obj;
             })
           );
           if (getData) {
             res
               .status(200)
-              .json({ message: "successfully", trainingData: trainings });
+              .json({ message: "successfully", trainingData: trainings,userName:verifiedUser.FirstName });
           } else {
             res.status(200).json({ message: "No Training Found" });
           }

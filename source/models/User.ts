@@ -11,6 +11,7 @@ class User extends Model {
   public Employee_Email!: string;
   public Password!: string;
   public is_admin!: boolean;
+  public is_activated!:boolean;
 }
 User.init(
   {

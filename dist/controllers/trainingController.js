@@ -185,6 +185,7 @@ class TrainingController {
             }
         });
     }
+    // token verification
     static verifyToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -278,6 +279,32 @@ class TrainingController {
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    restore(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const token = req.headers.authorization;
+            const trainingName = req.params.training;
+            if (token) {
+                yield jwt.verify(token, "naren", (err, decoded) => __awaiter(this, void 0, void 0, function* () {
+                    if (err) {
+                        if ((err === null || err === void 0 ? void 0 : err.name) === "TokenExpiredError") {
+                            res.status(200).json({ message: "TokenExpiredError" });
+                        }
+                        console.log(err);
+                    }
+                    if (decoded) {
+                        console.log(decoded.userExist);
+                        const trainingExists = yield trainingModel_1.trainingModel.findOne({
+                            where: { trainingTitle: trainingName },
+                        });
+                        if (trainingExists) {
+                            yield trainingModel_1.trainingModel.update({ is_active: true }, { where: { trainingTitle: trainingName } });
+                            res.status(200).json({ message: "Restored Successfully" });
+                        }
+                    }
+                }));
             }
         });
     }
