@@ -231,17 +231,18 @@ class TrainingController {
           const getData = await TrainingRegisteredUser.findAll({
             where: { Email: verifiedUser.Employee_Email },
           });
-          const trainings = await Promise.all(
-            getData.map(async (data) => {
-              const trainingName = await trainingModel.findOne({
-                where: { trainingTitle: data.trainingTitle },
-              });
-              const obj = trainingName?.dataValues
-              obj['RegisteredDateTime']= data.RegisteredDateTime
-              return obj;
-            })
-          );
+          
           if (getData) {
+            const trainings = await Promise.all(
+              getData.map(async (data) => {
+                const trainingName = await trainingModel.findOne({
+                  where: { trainingTitle: data.trainingTitle },
+                });
+                const obj = trainingName?.dataValues
+                obj['RegisteredDateTime']= data.RegisteredDateTime
+                return obj;
+              })
+            );
             res
               .status(200)
               .json({ message: "successfully", trainingData: trainings,userName:verifiedUser.FirstName });
