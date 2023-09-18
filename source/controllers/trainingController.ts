@@ -70,12 +70,29 @@ class TrainingController {
             const getData = await trainingModel.findAll({
               where: { is_active: true },
             });
+
+            const trainingDataAndStatus =await Promise.all(getData.map(async(training)=>{
+              const trainingDetails = await TrainingRegisteredUser.findOne({where:{[Op.and]:[{Email:decoded.userExist.Employee_Email},{trainingTitle:training.trainingTitle}]}})
+              
+              if(trainingDetails){
+                var obj = training.dataValues
+                obj['is_disabled']=true
+              }else{
+                var obj = training.dataValues
+                obj['is_disabled']=false
+
+              }
+              return obj
+            })
+            );
+
+
             return res
               .status(200)
               .json({
                 message: "successfully",
-                trainingData: getData,
-                userName: decoded.userExist.FirstName,
+                trainingData: trainingDataAndStatus,
+                userName: decoded.userExist.FirstName
               });
           }
         }
