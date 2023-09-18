@@ -351,6 +351,79 @@ class TrainingController {
     }
   }
 
+
+  public async getOngoingTraining(req:Request, res:Response){
+    const token = req.headers.authorization
+    try {
+      if(token){
+        const authUser = await TrainingController.verifyToken(token)
+        if(authUser){
+          const todayDate = new Date()
+          const getData = await trainingModel.findAll({
+            where: {
+              startDateTime: {
+                [Op.lte]: todayDate.toISOString().substring(0, 10), // Convert today to 'YYYY-MM-DD' format
+              },
+              endDateTime: {
+                [Op.gte]: todayDate.toISOString().substring(0, 10), // Exclude trainings where endDateTime is in the past
+              },
+            },
+          });
+          
+          return res
+            .status(200)
+            .json({
+              message: "successfully",
+              getOngoingTraining: getData,
+            });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
+
+  public async getRegisteredTraining(req:Request, res:Response){
+    const token = req.headers.authorization
+    try {
+      if(token){
+        const authUser = await TrainingController.verifyToken(token)
+        if(authUser){
+          const getData = await TrainingRegisteredUser.findAll({
+            where: {
+              Email:authUser.Employee_Email
+            },
+          });
+
+          const registeredTrainings =await Promise.all(getData.map(async(training)=>{
+            const trainingDetails = await trainingModel.findOne({where:{trainingTitle:training.trainingTitle}})
+            return trainingDetails
+          })
+          );
+          
+          return res
+            .status(200)
+            .json({
+              message: "successfully",
+              getRegisteredTraining: registeredTrainings,
+            });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
+  }
+
+
+
+
+
+
+
+
 }
 
 export const trainingController = new TrainingController();
