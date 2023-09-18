@@ -1,9 +1,12 @@
 // src/controllers/UserController.ts
 export {};
-import { Request, Response } from "express";
+import { Request, Response, response } from "express";
 import { TrainingRegisteredUser } from "../models/TrainingRegisteredUser";
 const { Op } = require("sequelize");
 import { trainingModel } from "../models/trainingModel";
+import { Notification } from "../models/Notification";
+import { User } from "../models/User";
+
 const jwt = require("jsonwebtoken");
 
 class TrainingController {
@@ -35,9 +38,16 @@ class TrainingController {
       } else {
         console.log("training : ",trainingExists);
         
-        await trainingModel.create(trainingData).then(() => {
+        await trainingModel.create(trainingData).then(async() => {
+          const notification_data = {
+            trainingTitle:trainingData.trainingTitle,
+            description:trainingData.description,
+            limit:trainingData.limit
+          }
+          await Notification.create(notification_data);
           res.status(201).json({ message: "Training Created Successfully" });
         });
+        
       }
     } catch (error) {
       console.log(error);
@@ -74,7 +84,59 @@ class TrainingController {
       res.status(200).json({ message: "Token Not Found" });
     }
   }
+  public async getUserData(req: Request, res: Response) {
+    const token = req.headers.authorization;
+    if (token) {
+      await jwt.verify(token, "naren", async (err: any, decoded: any) => {
+        if (err) {
+          if (err?.name === "TokenExpiredError") {
+            res.status(200).json({ message: "TokenExpiredError" });
+          }
+          console.log(err);
+        }
+        if (decoded) {
+          console.log("decodded", decoded.userExist);
+          if (decoded.userExist) {
+            const getData = await User.findAll();
+            return res
+              .status(200)
+              .json({
+                message: "successfully",
+                userData: getData,
+                userName: decoded.userExist.FirstName,
+              });
+          }
+        }
+      });
+    } else {
+      res.status(200).json({ message: "Token Not Found" });
+    }
+  }
 
+
+
+  public async adminStatus(req:Request, res: Response){
+    const {mailId,token} = req.body;
+    console.log(mailId, token);
+    
+    try {
+
+      if(token && mailId){
+        const user = await User.findOne({
+          where:{Employee_Email:mailId}
+        })
+        if(user){
+          await User.update({is_admin:!user.is_admin}, {where:{Employee_Email:mailId}})
+          .then(()=>{
+            res.status(200).json({success:true,adminStatus:user.is_admin})
+          })
+        }
+
+      }
+    } catch (error) {
+      
+    }
+  }
   public async trainingRequest(req: Request, res: Response) {
     const token = req.headers.authorization;
     const trainingName = req.params.training;

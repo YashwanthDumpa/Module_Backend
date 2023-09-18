@@ -1,8 +1,11 @@
+export {}
 const express = require("express");
 const bodyParser = require("body-parser");
 const database = require("./database/sequelize");
 const cors = require("cors");
+
 const routes = require("./routes/userRoutes");
+const {initWebSocket} = require('./websocket');
 const trainingrRoutes = require("./routes/trainingRoutes");
 const dotenv = require("dotenv");
 const http = require('http')
@@ -10,7 +13,6 @@ const app = express();
 const PORT = process.env.PORT; // set port, listen for requests
 const httpserver = http.createServer(app)
 
-//Handling Uncaught Exception
 
 process.on("uncaughtException", err =>{
   console.log(`Error : ${err.message}`);
@@ -18,7 +20,8 @@ process.on("uncaughtException", err =>{
   process.exit(1);
 })
 
-
+// Initialize WebSocket server
+export const wss = initWebSocket(httpserver);
 
 const result = dotenv.config();
 if (result.error) {
@@ -26,6 +29,9 @@ if (result.error) {
   process.exit(1);
 }
 // Exit the application if there's an error
+
+
+
 
 
 app.use(cors());

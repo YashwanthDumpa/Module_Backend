@@ -11,6 +11,8 @@ trainingrRoutes.get('/deleteTraining/:training',trainingController.trainingDelet
 trainingrRoutes.get('/dashboard',trainingController.dashboard)
 trainingrRoutes.get('/recycle-bin',trainingController.recycleBin)
 trainingrRoutes.get('/restore/:training',trainingController.restore)
+trainingrRoutes.get('/userinfo',trainingController.getUserData)
+trainingrRoutes.post('/adminStatus',trainingController.adminStatus)
 
 
 
