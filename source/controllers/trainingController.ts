@@ -432,16 +432,7 @@ class TrainingController {
       console.log(error);
       
     }
-    
   }
-
-
-
-
-
-
-
-
 }
 
 export const trainingController = new TrainingController();

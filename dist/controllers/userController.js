@@ -69,7 +69,43 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             const { EmpId, fname, lname, number, email, password } = req.body;
             try {
+
                 if (EmpId && fname && number && email && password) {
+                    const emailRegex = /@jmangroup\.com$/;
+
+        if (!emailRegex.test(email)) {
+
+          return res.status(400).json({ message: "Invalid email format" });
+
+        }
+
+ 
+
+        // Check if the number contains digits
+
+        const numberRegex = /^\d+$/;
+
+        if (!numberRegex.test(number)) {
+
+          return res.status(400).json({ message: "Number should contain digits only" });
+
+        }
+
+ 
+
+        // Check if the password meets the criteria
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (!passwordRegex.test(password)) {
+
+          return res.status(400).json({
+
+            message:
+
+              "Password should be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)",
+
+          });
                     var userData = {
                         EMP_ID: EmpId,
                         FirstName: fname,
@@ -112,6 +148,7 @@ class UserController {
                     res.json({ message: "empty data" });
                 }
             }
+        }
             catch (error) {
                 res.status(500).json({ error: 'An error occurred' });
             }

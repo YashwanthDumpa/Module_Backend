@@ -44,8 +44,5 @@ class NotificationController {
         }
     }
 
-
-
-  
 }
 export const notificationController = new NotificationController();
