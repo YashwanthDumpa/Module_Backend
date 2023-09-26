@@ -3,36 +3,37 @@ const sequelize = require("../database/sequelize")
 
 class TrainingRegisteredUser extends Model {
 
-  public Email!: string;
-  public Firstname!: string;
-  public Lastname!: string;
+  public email!: string;
+  public firstName!: string;
+  public lastName!: string;
   public trainingTitle!: string;
-  public MobileNumber!: string;
-  public RegisteredDateTime!: string;
+  public mobileNumber!: string;
+  public registeredDateTime!: string;
+  public isDisabled!: boolean;
 
 }
 
 TrainingRegisteredUser.init(
   {
-    Email: {
+    email: {
       type: DataTypes.STRING
     },
-    Firstname: {
+    firstName: {
       type: DataTypes.STRING
     },
-    Lastname: {
+    lastName: {
       type: DataTypes.STRING
     },
     trainingTitle: {
       type: DataTypes.STRING
     },
-    MobileNumber: {
+    mobileNumber: {
       type: DataTypes.STRING
     },
-    RegisteredDateTime: {
+    registeredDateTime: {
       type: DataTypes.DATE,
     },
-    is_disabled: {
+    isDisabled: {
       type: DataTypes.BOOLEAN,
       defaultValue:false
     }

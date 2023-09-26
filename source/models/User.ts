@@ -4,42 +4,42 @@ const sequelize = require("../database/sequelize")
 
 
 class User extends Model {
-  public EMP_ID!: string;
-  public FirstName!: string;
-  public LastName!: string;
-  public Number!: string;
-  public Employee_Email!: string;
-  public Password!: string;
-  public is_admin!: boolean;
-  public is_activated!:boolean;
+  public empId!: string;
+  public firstName!: string;
+  public lastName!: string;
+  public number!: string;
+  public employeeEmail!: string;
+  public password!: string;
+  public isAdmin!: boolean;
+  public isActivated!:boolean;
 }
 User.init(
   {
-    EMP_ID: {
+    empId: {
       type: DataTypes.STRING,
       primaryKey: true
     },
-    FirstName: {
+    firstName: {
       type: DataTypes.STRING
     },
-    LastName: {
+    lastName: {
       type: DataTypes.STRING
     },
-    Number: {
+    number: {
       type: DataTypes.STRING
     },
-    Employee_Email: {
+    employeeEmail: {
       type: DataTypes.STRING,
       unique:true
     },
-    Password: {
+    password: {
       type: DataTypes.STRING
     },
-    is_admin: {
+    isAdmin: {
       type: DataTypes.BOOLEAN,
       defaultValue:false
     },
-    is_activated: {
+    isActivated: {
       type: DataTypes.BOOLEAN,
       defaultValue:false
     }

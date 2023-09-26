@@ -1,4 +1,4 @@
-// src/controllers/UserController.ts
+// src/controllers/UserController.tsEmployee_email
 export {};
 import { Request, Response, response } from "express";
 import { TrainingRegisteredUser } from "../models/TrainingRegisteredUser";
@@ -68,18 +68,18 @@ class TrainingController {
           console.log("decodded", decoded.userExist);
           if (decoded.userExist) {
             const getData = await trainingModel.findAll({
-              where: { is_active: true },
+              where: { isActive: true },
             });
 
             const trainingDataAndStatus =await Promise.all(getData.map(async(training)=>{
-              const trainingDetails = await TrainingRegisteredUser.findOne({where:{[Op.and]:[{Email:decoded.userExist.Employee_Email},{trainingTitle:training.trainingTitle}]}})
+              const trainingDetails = await TrainingRegisteredUser.findOne({where:{[Op.and]:[{email:decoded.userExist.employeeEmail},{trainingTitle:training.trainingTitle}]}})
               
               if(trainingDetails){
                 var obj = training.dataValues
-                obj['is_disabled']=true
+                obj['isDisabled']=true
               }else{
                 var obj = training.dataValues
-                obj['is_disabled']=false
+                obj['isDisabled']=false
 
               }
               return obj
@@ -92,7 +92,7 @@ class TrainingController {
               .json({
                 message: "successfully",
                 trainingData: trainingDataAndStatus,
-                userName: decoded.userExist.FirstName
+                userName: decoded.userExist.firstName
               });
           }
         }
@@ -120,7 +120,7 @@ class TrainingController {
               .json({
                 message: "successfully",
                 userData: getData,
-                userName: decoded.userExist.FirstName,
+                userName: decoded.userExist.firstName,
               });
           }
         }
@@ -140,12 +140,12 @@ class TrainingController {
 
       if(token && mailId){
         const user = await User.findOne({
-          where:{Employee_Email:mailId}
+          where:{employeeEmail:mailId}
         })
         if(user){
-          await User.update({is_admin:!user.is_admin}, {where:{Employee_Email:mailId}})
+          await User.update({isAdmin:!user.isAdmin}, {where:{employeeEmail:mailId}})
           .then(()=>{
-            res.status(200).json({success:true,adminStatus:user.is_admin})
+            res.status(200).json({success:true,adminStatus:user.isAdmin})
           })
         }
 
@@ -180,7 +180,7 @@ class TrainingController {
                 const alreadyRegistered = await TrainingRegisteredUser.findOne({
                   where: {
                     [Op.and]: [
-                      { Email: user.Employee_Email },
+                      { email: user.employeeEmail },
                       { trainingTitle: trainingName },
                     ],
                   },
@@ -195,13 +195,13 @@ class TrainingController {
                     res.status(200).json({ message: "Limit Reached" });
                   } else {
                     const info = {
-                      Email: user.Employee_Email,
-                      Firstname: user.FirstName,
-                      Lastname: user.LastName,
+                      email: user.employeeEmail,
+                      firstName: user.firstName,
+                      lastName: user.lastName,
                       trainingTitle: trainingName,
-                      MobileNumber: user.Number,
-                      RegisteredDateTime: new Date(),
-                      is_disabled: true,
+                      mobileNumber: user.number,
+                      registeredDateTime: new Date(),
+                      isDisabled: true,
                     };
                     console.log("this is info : ", info);
 
@@ -242,7 +242,7 @@ class TrainingController {
           });
           if (trainingExists) {
             await trainingModel.update(
-              { is_active: false },
+              { isActive: false },
               { where: { trainingTitle: trainingName } }
             );
             res.status(200).json({ message: "Deleted Successfully" });
@@ -279,12 +279,12 @@ class TrainingController {
         const verifiedUser: any = await TrainingController.verifyToken(token);
         if (verifiedUser) {
           const getData = await trainingModel.findAll({
-            where: { is_active: false },
+            where: { isActive: false },
           });
           if (getData) {
             res
               .status(200)
-              .json({ message: "successfully", trainingData: getData,userName: verifiedUser.FirstName, });
+              .json({ message: "successfully", trainingData: getData,userName: verifiedUser.firstName, });
           } else {
             res.status(200).json({ message: "No Training Found" });
           }
@@ -308,7 +308,7 @@ class TrainingController {
         const verifiedUser: any = await TrainingController.verifyToken(token);
         if (verifiedUser) {
           const getData = await TrainingRegisteredUser.findAll({
-            where: { Email: verifiedUser.Employee_Email },
+            where: { email: verifiedUser.employeeEmail },
           });
           
           if (getData) {
@@ -318,13 +318,13 @@ class TrainingController {
                   where: { trainingTitle: data.trainingTitle },
                 });
                 const obj = trainingName?.dataValues
-                obj['RegisteredDateTime']= data.RegisteredDateTime
+                obj['registeredDateTime']= data.registeredDateTime
                 return obj;
               })
             );
             res
               .status(200)
-              .json({ message: "successfully", trainingData: trainings,userName:verifiedUser.FirstName });
+              .json({ message: "successfully", trainingData: trainings,userName:verifiedUser.firstName });
           } else {
             res.status(200).json({ message: "No Training Found" });
           }
@@ -359,7 +359,7 @@ class TrainingController {
           });
           if (trainingExists) {
             await trainingModel.update(
-              { is_active: true },
+              { isActive: true },
               { where: { trainingTitle: trainingName } }
             );
             res.status(200).json({ message: "Restored Successfully" });
@@ -410,7 +410,7 @@ class TrainingController {
         if(authUser){
           const getData = await TrainingRegisteredUser.findAll({
             where: {
-              Email:authUser.Employee_Email
+              email:authUser.employeeEmail
             },
           });
 

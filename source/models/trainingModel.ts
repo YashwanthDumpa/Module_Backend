@@ -10,6 +10,7 @@ class trainingModel extends Model {
   public endDateTime!: string;
   public description!: string;
   public limit!: string;
+  public isActive!: boolean;
 
 }
 
@@ -37,7 +38,7 @@ trainingModel.init(
     limit: {
       type: DataTypes.INTEGER,
     },
-    is_active: {
+    isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue:true
     }

@@ -12,7 +12,7 @@ class UserController {
   // User Registration
   private static async userExists(data:any){
     try {
-      const user = await User.findOne({where: {[Op.or]:[{EMP_ID: data.EMP_ID} ,{Employee_Email:data.Employee_Email}]}});
+      const user = await User.findOne({where: {[Op.or]:[{empId: data.empId} ,{employeeEmail:data.employeeEmail}]}});
       if (user) {
         return true;
       } else {
@@ -25,7 +25,7 @@ class UserController {
   }
 
 private static async emailVerificationLink(token: any, hashUser: any){
-  console.log("madhumita mazundar")
+
   const transporter = await nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -37,7 +37,7 @@ private static async emailVerificationLink(token: any, hashUser: any){
   })
   const mailOptions = {
     from: process.env.SMTP_FROM,
-    to: hashUser.Employee_Email,
+    to: hashUser.employeeEmail,
     subject: process.env.SMTP_SUBJECT,
     text: `Please click the following link to verify your email: ${process.env.url}/verify?token=${token}`,
   };
@@ -56,27 +56,27 @@ private static async emailVerificationLink(token: any, hashUser: any){
     try {      
       if(EmpId && fname && number && email && password){
         var userData = {
-          EMP_ID: EmpId,
-          FirstName: fname,
-          LastName: lname,
-          Number: number,
-          Employee_Email: email,
-          Password: password
+          empId: EmpId,
+          firstName: fname,
+          lastName: lname,
+          number: number,
+          employeeEmail: email,
+          password: password
         }
             const userAlreadyExist = await UserController.userExists(userData)
             if(userAlreadyExist){
               res.status(200).json({ message: "User Already Registered" })
             }else{
-              await bcrypt.hash(userData.Password,10,async (err: any, hash: any)=>{
+              await bcrypt.hash(userData.password,10,async (err: any, hash: any)=>{
                 if(err){res.status(500).json({ message: "Server Error" })}
                 if(hash){
                   const hashUser = {
-                    EMP_ID: EmpId,
-                    FirstName: fname,
-                    LastName: lname,
-                    Number: number,
-                    Employee_Email: email,
-                    Password: hash
+                    empId: EmpId,
+                    firstName: fname,
+                    lastName: lname,
+                    number: number,
+                    employeeEmail: email,
+                    password: hash
                   }
                   const token = await UserController.createJwtToken(hashUser)
                   await UserController.emailVerificationLink(token, hashUser).then(async ()=>{
@@ -108,10 +108,10 @@ private static async emailVerificationLink(token: any, hashUser: any){
       if(decoded){
           console.log("decodded", decoded.userExist);
           if(decoded.userExist){
-              const userVerification = await User.findOne({where:{[Op.and]:[{EMP_ID:decoded.userExist.EMP_ID},{Employee_Email:decoded.userExist.Employee_Email}]}})
+              const userVerification = await User.findOne({where:{[Op.and]:[{empId:decoded.userExist.empId},{employeeEmail:decoded.userExist.employeeEmail}]}})
               console.log("query : ",userVerification?.dataValues);
               if(userVerification){
-                await User.update({is_activated:true},{where:{[Op.and]:[{EMP_ID:decoded.userExist.EMP_ID},{Employee_Email:decoded.userExist.Employee_Email}]}})
+                await User.update({isActivated:true},{where:{[Op.and]:[{empId:decoded.userExist.empId},{employeeEmail:decoded.userExist.employeeEmail}]}})
               }
           }
       }
@@ -138,20 +138,20 @@ private static async emailVerificationLink(token: any, hashUser: any){
     const {email,password} = req.body
     try {      
        var loginData = {
-    Employee_Email: email,
-    Password: password
+    employeeEmail: email,
+    password: password
     }
       console.log(loginData);
-      const userExist = await User.findOne({where: {Employee_Email: loginData.Employee_Email}})
+      const userExist = await User.findOne({where: {employeeEmail: loginData.employeeEmail}})
       console.log(userExist?.dataValues);
       if(userExist){
-        if(userExist.dataValues.is_activated){
-          bcrypt.compare(loginData.Password,userExist.dataValues.Password,async (err: any, result: any)=>{
+        if(userExist.dataValues.isActivated){
+          bcrypt.compare(loginData.password,userExist.dataValues.password,async (err: any, result: any)=>{
             if(err){res.status(500).json({ message: "Server Error" })}
             if(result){
               // const token = await jwt.sign({userExist}, 'naren', { expiresIn: '1h' })
               const token = await UserController.createJwtToken(userExist)
-              if(userExist.dataValues.is_admin){
+              if(userExist.dataValues.isAdmin){
                 res.status(200).json({ message: "Login-admin", data: userExist, token })
               }else{
                 res.status(200).json({ message: "Login", data: userExist, token })
